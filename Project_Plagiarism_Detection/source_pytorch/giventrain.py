@@ -1,4 +1,3 @@
-from __future__ import print_function # future proof
 import argparse
 import json
 import os
@@ -6,7 +5,6 @@ import pandas as pd
 import torch
 import torch.optim as optim
 import torch.utils.data
-import torch.nn as nn
 
 # imports the model in model.py by name
 from model import BinaryClassifier
@@ -109,21 +107,16 @@ if __name__ == '__main__':
     parser.add_argument('--data-dir', type=str, default=os.environ['SM_CHANNEL_TRAIN'])
     
     # Training Parameters, given
-    parser.add_argument('--batch-size', type=int, default=64, metavar='N',
+    parser.add_argument('--batch-size', type=int, default=10, metavar='N',
                         help='input batch size for training (default: 10)')
     parser.add_argument('--epochs', type=int, default=10, metavar='N',
                         help='number of epochs to train (default: 10)')
     parser.add_argument('--seed', type=int, default=1, metavar='S',
                         help='random seed (default: 1)')
-    parser.add_argument('--lr', type=float, default=0.001, metavar='LR',
-                        help='learning rate (default: 0.001)')
     
     ## TODO: Add args for the three model parameters: input_features, hidden_dim, output_dim
     # Model Parameters
-    ## Adapted from moon_data solution code
-    parser.add_argument('--input_dim', type=int, default=4, metavar='IN', help='number of input features to model (default: 1)')
-    parser.add_argument('--hidden_dim', type=int, default=20, metavar='HID', help='hidden dim of model (default: 10)')
-    parser.add_argument('--output_dim', type=int, default=1, metavar='OUT', help='output dim of model (must be: 1)')
+    
     
     # args holds all passed-in arguments
     args = parser.parse_args()
@@ -132,10 +125,7 @@ if __name__ == '__main__':
     print("Using device {}.".format(device))
 
     torch.manual_seed(args.seed)
-    ## Copied from moon_data solution code
-    if torch.cuda.is_available():
-        torch.cuda.manual_seed(args.seed)
-        
+
     # Load the training data.
     train_loader = _get_train_data_loader(args.batch_size, args.data_dir)
 
@@ -145,12 +135,11 @@ if __name__ == '__main__':
     ## TODO:  Build the model by passing in the input params
     # To get params from the parser, call args.argument_name, ex. args.epochs or ards.hidden_dim
     # Don't forget to move your model .to(device) to move to GPU , if appropriate
-    model = BinaryClassifier(args.input_dim, args.hidden_dim, args.output_dim).to(device)
+    model = None
 
     ## TODO: Define an optimizer and loss function for training
-    ## Copied from moon_data solution code
-    optimizer = optim.Adam(model.parameters(), lr=args.lr)
-    criterion = nn.BCELoss()
+    optimizer = None
+    criterion = None
 
     # Trains the model (given line of code, which calls the above training function)
     train(model, train_loader, args.epochs, criterion, optimizer, device)
@@ -160,9 +149,9 @@ if __name__ == '__main__':
     model_info_path = os.path.join(args.model_dir, 'model_info.pth')
     with open(model_info_path, 'wb') as f:
         model_info = {
-            'input_features': args.input_dim,
-            'hidden_dim': args.hidden_dim,
-            'output_dim': args.output_dim,
+            'input_features': args.input_features,
+            'hidden_dim': <add_arg>,
+            'output_dim': <add_arg>,
         }
         torch.save(model_info, f)
         
